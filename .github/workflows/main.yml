@@ -24,7 +24,7 @@ jobs:
     - name: Creating Tunnel
       id: ngrok_tunnel
       run: |
-        $tunnel_output = .\ngrok\ngrok.exe tcp 3389
+        $tunnel_output = .\ngrok\ngrok.exe tcp 3389 &
         $tunnel_output | Out-File -FilePath ngrok_tunnel.txt
         $tunnel_url = $tunnel_output -replace '\s+', ' ' | Select-String -Pattern 'tcp://.*\.ngrok.io:\d+' -AllMatches | ForEach-Object { $_.Matches } | ForEach-Object { $_.Value }
         Write-Output "::set-output name=tunnel_url::$tunnel_url"

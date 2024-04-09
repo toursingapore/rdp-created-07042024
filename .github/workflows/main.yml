@@ -21,19 +21,5 @@ jobs:
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
     - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
     - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Creating Tunnel
-      id: ngrok_tunnel
-      run: |
-        $tunnel_url = $null
-        while (-not $tunnel_url) {
-          $tunnel_output = .\ngrok\ngrok.exe tcp 3389
-          $tunnel_output | Out-File -FilePath ngrok_tunnel.txt
-          $tunnel_url = $tunnel_output -replace '\s+', ' ' | Select-String -Pattern 'tcp://.*\.ngrok.io:\d+' -AllMatches | ForEach-Object { $_.Matches } | ForEach-Object { $_.Value }
-          if (-not $tunnel_url) {
-            Write-Host "Tunnel URL not extracted yet, retrying in 5 seconds..."
-            Start-Sleep -Seconds 5
-          }
-        }
-        Write-Output "::set-output name=tunnel_url::$tunnel_url"
-    - name: Pass Tunnel URL to Next Step
-      run: echo "Tunnel URL is ${{ steps.ngrok_tunnel.outputs.tunnel_url }}"
+    - name: Create Tunnel
+      run: .\ngrok\ngrok.exe tcp 3389

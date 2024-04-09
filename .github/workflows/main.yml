@@ -24,6 +24,9 @@ jobs:
     - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp 3389 &
     - name: Show Tunnel
-      run: .\ngrok\ngrok.exe $Env:NGROK_AUTH_TOKEN endpoints
+      id: show_tunnel
+      run: .\ngrok\ngrok.exe $Env:NGROK_AUTH_TOKEN http 80  # assuming HTTP port is 80, modify if necessary
       env:
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}      
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Parse Endpoints
+      run: echo "${{ steps.show_tunnel.outputs.stdout }}" | Select-String -Pattern "http://.*\.ngrok\.io" -AllMatches | ForEach-Object { $_.Matches.Value }    
